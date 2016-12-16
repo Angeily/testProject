@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <drawable name="image_view_background">#a0ffffff</drawable>
+    <drawable name="button_background">#00ffffff</drawable>
     
 </resources>

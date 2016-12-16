@@ -7,7 +7,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="success_show">success !</string>
-    <string name="button_2_text">ok</string>
+    <string name="button_2_text">forget it!</string>
     <string name="lie_show">骗你的啦</string>
-
+	<string name="menu_startgame_text">enjoy it!</string>
 </resources>
