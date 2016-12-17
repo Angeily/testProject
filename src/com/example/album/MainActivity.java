@@ -45,9 +45,12 @@ public class MainActivity extends Activity {
 	private boolean keyStop = false, fullScreen = true;
 	private String version;
 	private boolean isAndroidM, noEvent;
+	private int count;
+	private long afterMem,beforeMem;
 	private static final String TAG = "MainActivity";
 	private static final int MSG_START_DREAM = 10;
 	private static final int MSG_ACTIONBAR_SHOW = 11;
+	private static final int MSG_SHOW_TOAST = 12;
 
 	private OnClickListener listener = new OnClickListener() {
 
@@ -62,6 +65,15 @@ public class MainActivity extends Activity {
 				startActivityForResult(intent, 0);
 				break;
 			case R.id.button_2:
+				new Thread(new Runnable(){
+
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						clean();
+					}
+					
+				}).start();
 				break;
 
 			default:
@@ -144,6 +156,10 @@ public class MainActivity extends Activity {
 				 */
 				noEvent = true;
 				// handler.sendEmptyMessageDelayed(MSG_ACTIONBAR_SHOW, 10000);
+				break;
+			case MSG_SHOW_TOAST:
+				Toast.makeText(MainActivity.this, "帮你个傻逼清理 " + count + " process, "  
+                + (afterMem - beforeMem) + "M", Toast.LENGTH_LONG).show();  
 				break;
 			default:
 				Log.d(TAG, "msg : " + msg.what);
@@ -371,24 +387,23 @@ public class MainActivity extends Activity {
 	}
 	public void clean(){
 	ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);  
-    List<RunningAppProcessInfo> infoList = am.getRunningAppProcesses();  
+    List<ActivityManager.RunningAppProcessInfo> infoList = am.getRunningAppProcesses();  
     List<ActivityManager.RunningServiceInfo> serviceInfos = am.getRunningServices(100);  
-
-    long beforeMem = getAvailMemory(this);  
+    Log.d(TAG,"size : " + infoList.size());
+    Log.d(TAG,"size : " + serviceInfos.size());
+    beforeMem = getAvailMemory(MainActivity.this);  
     Log.d(TAG, "-----------before memory info : " + beforeMem);  
-    int count = 0;  
+    count = 0;  
     if (infoList != null) {  
         for (int i = 0; i < infoList.size(); ++i) {  
-            RunningAppProcessInfo appProcessInfo = infoList.get(i);  
+        	ActivityManager.RunningAppProcessInfo appProcessInfo = infoList.get(i);  
             Log.d(TAG, "process name : " + appProcessInfo.processName);  
-            //importance 该进程的重要程度  分为几个级别，数值越低就越重要。  
+            Log.d(TAG,"size : " + infoList.size());
             Log.d(TAG, "importance : " + appProcessInfo.importance);  
-
-            // 一般数值大于RunningAppProcessInfo.IMPORTANCE_SERVICE的进程都长时间没用或者空进程了  
-            // 一般数值大于RunningAppProcessInfo.IMPORTANCE_VISIBLE的进程都是非可见进程，也就是在后台运行着  
             if (appProcessInfo.importance > RunningAppProcessInfo.IMPORTANCE_VISIBLE) {  
                 String[] pkgList = appProcessInfo.pkgList;  
-                for (int j = 0; j < pkgList.length; ++j) {//pkgList 得到该进程下运行的包名  
+                Log.d(TAG,"length : " + pkgList.length);
+                for (int j = 0; j < pkgList.length; ++j) {
                     Log.d(TAG, "It will be killed, package name : " + pkgList[j]);  
                     am.killBackgroundProcesses(pkgList[j]);  
                     count++;  
@@ -398,10 +413,9 @@ public class MainActivity extends Activity {
         }  
     }  
 
-    long afterMem = getAvailMemory(this);  
+    afterMem = getAvailMemory(MainActivity.this);  
     Log.d(TAG, "----------- after memory info : " + afterMem);  
-    Toast.makeText(MainActivity.this, "clear " + count + " process, "  
-                + (afterMem - beforeMem) + "M", Toast.LENGTH_LONG).show();  
+    handler.sendEmptyMessage(MSG_SHOW_TOAST);
 	}
 	public long getAvailMemory(Context context) {  
         // 获取android当前可用内存大小  
@@ -412,7 +426,7 @@ public class MainActivity extends Activity {
         //return Formatter.formatFileSize(context, mi.availMem);// 将获取的内存大小规格化  
         Log.d(TAG, "可用内存---->>>" + mi.availMem / (1024 * 1024));  
         return mi.availMem / (1024 * 1024);  
-    }  
+    }
 }
 
 

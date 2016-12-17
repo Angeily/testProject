@@ -38,8 +38,8 @@
         	android:layout_marginTop="20dp"/>
         <ImageView 
             android:id="@+id/image_view_1"
-   		    android:layout_width="800dp"
-       		android:layout_height="450dp"
+   		    android:layout_width="wrap_content"
+       		android:layout_height="wrap_content"
        		android:layout_marginTop="20dp"
        		android:background="@drawable/image_view_background"
        		android:scaleType="fitXY"/>
