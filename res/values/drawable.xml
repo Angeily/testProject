@@ -2,5 +2,6 @@
 <resources>
     <drawable name="image_view_background">#a0ffffff</drawable>
     <drawable name="button_background">#00ffffff</drawable>
+    <drawable name="button_unfocus">#00ffffff</drawable>
     
 </resources>
