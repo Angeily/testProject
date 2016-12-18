@@ -1,6 +1,7 @@
 package com.example.album;
 
 import java.io.FileNotFoundException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -16,10 +17,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.input.InputManager;
+import android.hardware.input.*;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -39,7 +43,7 @@ import android.os.Build;
 public class MainActivity extends Activity {
 
 	private TextView text1;
-	private Button button1, button2;
+	private Button button1, button2,button_menu;
 	private ImageView imageView;
 	private ActionBar actionBar;
 	private boolean keyStop = false, fullScreen = true;
@@ -75,7 +79,8 @@ public class MainActivity extends Activity {
 					
 				}).start();
 				break;
-
+			case R.id.button_menu:
+				//sendKyeEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_MENU,MainActivity.this);
 			default:
 
 				break;
@@ -103,6 +108,14 @@ public class MainActivity extends Activity {
 	                button2.setBackgroundResource(R.drawable.button_background);  
 	            }  
 				break;
+			case R.id.button_menu:
+				if(event.getAction()==MotionEvent.ACTION_DOWN){  
+	                button_menu.setBackgroundResource(R.drawable.button_menu_press);  
+	            }else if(event.getAction()==MotionEvent.ACTION_UP){  
+	                button_menu.setBackgroundResource(R.drawable.button_menu);  
+	            }  
+				break;
+				
 			default:
 
 				break;
@@ -174,15 +187,18 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		button1 = (Button) findViewById(R.id.button_1);
 		button2 = (Button) findViewById(R.id.button_2);
+		button_menu = (Button) findViewById(R.id.button_menu);
 		text1 = (TextView) findViewById(R.id.textview_1);
-		imageView = (ImageView) findViewById(R.id.image_view_1);
+		imageView = (ImageView) findViewById(R.id.image_view_1);		
 		Log.d(TAG, "oncreate");
 		button1.setOnClickListener(listener);
 		button2.setOnClickListener(listener);
+		button_menu.setOnClickListener(listener);
 		button1.setOnFocusChangeListener(focusListener);
 		button2.setOnFocusChangeListener(focusListener);
 		button1.setOnTouchListener(touchListener);
 		button2.setOnTouchListener(touchListener);
+		button_menu.setOnTouchListener(touchListener);		
 		imageView = (ImageView) findViewById(R.id.image_view_1);
 		imageView.setVisibility(View.INVISIBLE);
 		actionBar = getActionBar();
@@ -417,7 +433,9 @@ public class MainActivity extends Activity {
     Log.d(TAG, "----------- after memory info : " + afterMem);  
     handler.sendEmptyMessage(MSG_SHOW_TOAST);
 	}
-	public long getAvailMemory(Context context) {  
+	
+	
+	public long getAvailMemory(Context context) {  //获取可用内存
         // 获取android当前可用内存大小  
         ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);  
         MemoryInfo mi = new MemoryInfo();  
@@ -427,6 +445,21 @@ public class MainActivity extends Activity {
         Log.d(TAG, "可用内存---->>>" + mi.availMem / (1024 * 1024));  
         return mi.availMem / (1024 * 1024);  
     }
+	
+	public void sendKyeEvent(int action,int keyCode,Context context){
+		long eventTime = SystemClock.uptimeMillis();  
+	    long mKeyRemappingSendFakeKeyDownTime = 0;
+		if (action == KeyEvent.ACTION_DOWN) {  
+	        mKeyRemappingSendFakeKeyDownTime = eventTime;  
+	    }  
+	  
+	    KeyEvent keyEvent = new KeyEvent(mKeyRemappingSendFakeKeyDownTime, eventTime, action, keyCode, 0);  
+	    InputManager inputManager = (InputManager) context.getSystemService(Context.INPUT_SERVICE);  
+	   // inputManager.
+	   // inputManager.injectInputEvent(keyEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC); //INJECT_INPUT_EVENT_MODE_ASYNC
+	}
+	
 }
+
 
 

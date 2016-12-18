@@ -46,7 +46,16 @@
        
         
     </LinearLayout>
-
     
+    
+    <Button
+        android:id="@+id/button_menu"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/button_menu" />
 
 </RelativeLayout>
