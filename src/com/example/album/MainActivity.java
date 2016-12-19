@@ -13,11 +13,11 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.hardware.input.InputManager;
 import android.hardware.input.*;
 import android.net.Uri;
 import android.os.Bundle;
@@ -80,7 +80,13 @@ public class MainActivity extends Activity {
 				}).start();
 				break;
 			case R.id.button_menu:
+				new Thread(new Runnable() {
+					public void run() {
+						sendKyeEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_MENU,MainActivity.this);//不能跑在主线程
+					}
+				}).start();
 				//sendKyeEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_MENU,MainActivity.this);
+				text1.setText("send menu");
 			default:
 
 				break;
@@ -143,6 +149,43 @@ public class MainActivity extends Activity {
 				} else {
 					button2.setBackgroundResource(R.drawable.button_background);
 				}
+				break;
+			case R.id.textview_1:
+				if (hasFocus) {
+					text1.setText("text focous");
+				} else {
+					text1.setText("text unfocous");
+				}
+				break;
+			case R.id.image_view_1:
+				if (hasFocus) {
+					text1.setText("image focous");
+				} else {
+					text1.setText("image unfocous");
+				}
+				break;
+			case R.id.button_menu:
+				if (hasFocus) {
+					text1.setText("menu focous");
+				} else {
+					text1.setText("menu unfocous");
+				}
+			case R.id.layout_1:
+				if (hasFocus) {
+					text1.setText("line focous");
+				} else {
+					text1.setText("line unfocous");
+				}				
+				break;
+			case R.id.layout_0:
+				if (hasFocus) {
+					text1.setText("focous");
+				} else {
+					text1.setText("unfocous");
+				}
+				break;
+			default:
+				break;
 			}
 
 		}
@@ -447,7 +490,7 @@ public class MainActivity extends Activity {
     }
 	
 	public void sendKyeEvent(int action,int keyCode,Context context){
-		long eventTime = SystemClock.uptimeMillis();  
+		/*long eventTime = SystemClock.uptimeMillis();  
 	    long mKeyRemappingSendFakeKeyDownTime = 0;
 		if (action == KeyEvent.ACTION_DOWN) {  
 	        mKeyRemappingSendFakeKeyDownTime = eventTime;  
@@ -455,8 +498,11 @@ public class MainActivity extends Activity {
 	  
 	    KeyEvent keyEvent = new KeyEvent(mKeyRemappingSendFakeKeyDownTime, eventTime, action, keyCode, 0);  
 	    InputManager inputManager = (InputManager) context.getSystemService(Context.INPUT_SERVICE);  
-	   // inputManager.
-	   // inputManager.injectInputEvent(keyEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC); //INJECT_INPUT_EVENT_MODE_ASYNC
+	    inputManager = InputManager.getInstance();
+	   inputManager.injectInputEvent(keyEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC); //INJECT_INPUT_EVENT_MODE_ASYNC
+*/	
+		Instrumentation inst=new Instrumentation();  
+		inst.sendKeyDownUpSync(keyCode);	
 	}
 	
 }
