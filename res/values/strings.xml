@@ -10,4 +10,9 @@
     <string name="button_2_text">forget it!</string>
     <string name="lie_show">骗你的啦</string>
 	<string name="menu_startgame_text">enjoy it!</string>
+	<string name="menu_startdream_text">start Dream</string>	
+	<string name="menu_fullscreen_text">full Screen</string>
+	<string name="menu_clean_text">clean Memorry</string>
+	<string name="label_music">Music</string>
+	
 </resources>

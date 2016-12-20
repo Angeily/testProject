@@ -3,5 +3,11 @@
     <drawable name="image_view_background">#a0ffffff</drawable>
     <drawable name="button_background">#00ffffff</drawable>
     <drawable name="button_unfocus">#00ffffff</drawable>
+    <drawable name="white">#ffffffff</drawable>  
+    <drawable name="red">#ffff0000</drawable>
+    <drawable name="blue">#ff0000ff</drawable>
+    <drawable name="green">#ff00ff00</drawable>
+  
+    
     
 </resources>

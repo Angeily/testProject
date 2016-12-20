@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="101"
+        android:orderInCategory="109"
         android:showAsAction="never"
         android:title="@string/action_settings"/>
 	<item
@@ -12,4 +12,20 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/menu_startgame_text"/>
+	<item
+        android:id="@+id/menu_startdream"
+        android:orderInCategory="101"
+        android:showAsAction="never"
+        android:title="@string/menu_startdream_text"/>
+	<item
+        android:id="@+id/menu_fullscreen"
+        android:orderInCategory="102"
+        android:showAsAction="never"
+        android:title="@string/menu_fullscreen_text"/>
+	<item
+        android:id="@+id/menu_clean"
+        android:orderInCategory="103"
+        android:showAsAction="never"
+        android:title="@string/menu_clean_text"/>
+	
 </menu>

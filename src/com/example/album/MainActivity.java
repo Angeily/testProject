@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.AlertDialog;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -34,6 +36,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -69,15 +72,8 @@ public class MainActivity extends Activity {
 				startActivityForResult(intent, 0);
 				break;
 			case R.id.button_2:
-				new Thread(new Runnable(){
-
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						clean();
-					}
-					
-				}).start();
+				//Intent musicIntent = new Intent(MainActivity.this,MusicActivity.class);
+				startActivity(new Intent(MainActivity.this,MusicActivity.class));
 				break;
 			case R.id.button_menu:
 				new Thread(new Runnable() {
@@ -200,7 +196,7 @@ public class MainActivity extends Activity {
 			case MSG_START_DREAM: // dreaming need to wait keyevent pass by
 				Log.d(TAG, "handle the message : " + msg.what);
 				if (isAndroidM) {
-					startDream();
+					startDream(MainActivity.this);
 				} else {
 					Toast.makeText(MainActivity.this, "系统不支持",
 							Toast.LENGTH_SHORT).show();
@@ -267,11 +263,11 @@ public class MainActivity extends Activity {
 		}
 		if (requestCode == 0) {
 			Uri uri = data.getData();
-			bitmapFactory(uri);
+			showImage(uri);
 		}
 	}
 
-	private void bitmapFactory(Uri uri) {
+	private void showImage(Uri uri) {
 		// TODO Auto-generated method stub
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		// options.inSampleSize = 8;//设置生成的图片为原图的八分之一
@@ -297,6 +293,7 @@ public class MainActivity extends Activity {
 			b = BitmapFactory.decodeStream(getContentResolver()
 					.openInputStream(uri), null, options);
 			imageView.setVisibility(View.VISIBLE);
+			imageView.setAlpha(200);
 			imageView.setImageBitmap(b);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -327,6 +324,25 @@ public class MainActivity extends Activity {
 				Toast.makeText(MainActivity.this, "系统不支持该游戏",
 						Toast.LENGTH_SHORT).show();
 			}
+		case R.id.menu_startdream:
+			if (isAndroidM) {
+				startDream(MainActivity.this);
+			} else {
+				Toast.makeText(MainActivity.this, "系统不支持",
+						Toast.LENGTH_SHORT).show();
+			}
+			break;
+		case R.id.menu_clean:
+			new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					clean(MainActivity.this);
+					handler.sendEmptyMessage(MSG_SHOW_TOAST);
+				}
+				
+			}).start();
 		default:
 			break;
 		}
@@ -340,9 +356,7 @@ public class MainActivity extends Activity {
 		switch (keycode) {
 		case KeyEvent.KEYCODE_MENU:
 			if (event.getAction() == KeyEvent.ACTION_UP) {
-				if (isAndroidM) {
-					showMenu();
-				}
+				showMenu();				
 			}
 			break;
 		case KeyEvent.KEYCODE_PROG_YELLOW:
@@ -427,7 +441,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	public void startDream() {
+	public void startDream(Context context) {
 		Intent intent = new Intent();
 		intent.setClassName("com.android.deskclock",
 				"com.android.deskclock.ScreensaverActivity");
@@ -444,8 +458,8 @@ public class MainActivity extends Activity {
 	public boolean isAndroidM() {
 		return (version.contains("6.0"));
 	}
-	public void clean(){
-	ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);  
+	public void clean(Context context){
+	ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);  
     List<ActivityManager.RunningAppProcessInfo> infoList = am.getRunningAppProcesses();  
     List<ActivityManager.RunningServiceInfo> serviceInfos = am.getRunningServices(100);  
     Log.d(TAG,"size : " + infoList.size());
@@ -459,14 +473,14 @@ public class MainActivity extends Activity {
             Log.d(TAG, "process name : " + appProcessInfo.processName);  
             Log.d(TAG,"size : " + infoList.size());
             Log.d(TAG, "importance : " + appProcessInfo.importance);  
-            if (appProcessInfo.importance > RunningAppProcessInfo.IMPORTANCE_VISIBLE) {  
+            if (appProcessInfo.importance > RunningAppProcessInfo.IMPORTANCE_SERVICE) {  
                 String[] pkgList = appProcessInfo.pkgList;  
                 Log.d(TAG,"length : " + pkgList.length);
                 for (int j = 0; j < pkgList.length; ++j) {
                     Log.d(TAG, "It will be killed, package name : " + pkgList[j]);  
                     am.killBackgroundProcesses(pkgList[j]);  
                     count++;  
-                }  
+                }
             }  
 
         }  
