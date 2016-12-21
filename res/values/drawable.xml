@@ -7,6 +7,7 @@
     <drawable name="red">#ffff0000</drawable>
     <drawable name="blue">#ff0000ff</drawable>
     <drawable name="green">#ff00ff00</drawable>
+    <drawable name="black">#f0000000</drawable>
   
     
     
