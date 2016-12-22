@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="button_1_text">hit it</string>
+    <string name="button_picture">pictures</string>
+    <string name="button_music">music</string>
     <string name="text_1">hello world my dear!</string>
     <string name="app_name">Album</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="success_show">success !</string>
-    <string name="button_2_text">forget it!</string>
     <string name="lie_show">骗你的啦</string>
 	<string name="menu_startgame_text">enjoy it!</string>
 	<string name="menu_startdream_text">start Dream</string>	

@@ -65,14 +65,15 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated method stub
 
 			switch (v.getId()) {
-			case R.id.button_1:
-				Intent intent = new Intent(
+			case R.id.button_picture:
+				/*Intent intent = new Intent(
 						Intent.ACTION_GET_CONTENT,
 						android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-				startActivityForResult(intent, 0);
+				startActivityForResult(intent, 0);*/
+				Log.d(TAG,"picture onclick()");
+				
 				break;
-			case R.id.button_2:
-				//Intent musicIntent = new Intent(MainActivity.this,MusicActivity.class);
+			case R.id.button_music:
 				startActivity(new Intent(MainActivity.this,MusicActivity.class));
 				break;
 			case R.id.button_menu:
@@ -94,16 +95,17 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
+			return false;
 			// TODO Auto-generated method stub
-			switch (v.getId()) {
-			case R.id.button_1:
+		/*	switch (v.getId()) {
+			case R.id.button_picture:
 				if(event.getAction()==MotionEvent.ACTION_DOWN){  
 	                button1.setBackgroundResource(R.drawable.button_focus);  
 	            }else if(event.getAction()==MotionEvent.ACTION_UP){  
 	                button1.setBackgroundResource(R.drawable.button_background);  
 	            }  
 				break;
-			case R.id.button_2:
+			case R.id.button_music:
 				if(event.getAction()==MotionEvent.ACTION_DOWN){  
 	                button2.setBackgroundResource(R.drawable.button_focus);  
 	            }else if(event.getAction()==MotionEvent.ACTION_UP){  
@@ -122,7 +124,7 @@ public class MainActivity extends Activity {
 
 				break;
 			}
-			return false;
+			return false;*/
 		}
 	};
 
@@ -131,15 +133,15 @@ public class MainActivity extends Activity {
 		@Override
 		public void onFocusChange(View v, boolean hasFocus) {
 			// TODO Auto-generated method stub
-			switch (v.getId()) {
-			case R.id.button_1:
+			/*switch (v.getId()) {
+			case R.id.button_picture:
 				if (hasFocus) {
 					button1.setBackgroundResource(R.drawable.button_focus);
 				} else {
 					button1.setBackgroundResource(R.drawable.button_background);
 				}
 				break;
-			case R.id.button_2:
+			case R.id.button_music:
 				if (hasFocus) {
 					button2.setBackgroundResource(R.drawable.button_focus);
 				} else {
@@ -182,7 +184,7 @@ public class MainActivity extends Activity {
 				break;
 			default:
 				break;
-			}
+			}*/
 
 		}
 
@@ -224,8 +226,8 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		button1 = (Button) findViewById(R.id.button_1);
-		button2 = (Button) findViewById(R.id.button_2);
+		button1 = (Button) findViewById(R.id.button_picture);
+		button2 = (Button) findViewById(R.id.button_music);
 		button_menu = (Button) findViewById(R.id.button_menu);
 		text1 = (TextView) findViewById(R.id.textview_1);
 		imageView = (ImageView) findViewById(R.id.image_view_1);		
@@ -508,7 +510,7 @@ public class MainActivity extends Activity {
 	    long mKeyRemappingSendFakeKeyDownTime = 0;
 		if (action == KeyEvent.ACTION_DOWN) {  
 	        mKeyRemappingSendFakeKeyDownTime = eventTime;  
-	    }  
+	    }
 	  
 	    KeyEvent keyEvent = new KeyEvent(mKeyRemappingSendFakeKeyDownTime, eventTime, action, keyCode, 0);  
 	    InputManager inputManager = (InputManager) context.getSystemService(Context.INPUT_SERVICE);  
