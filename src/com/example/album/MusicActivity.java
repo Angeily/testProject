@@ -11,9 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -30,7 +28,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -40,71 +37,68 @@ public class MusicActivity extends Activity {
 	
 	
 	private ImageView imageView1;
-	private TextView timeView,songTimel,songTimer;
+	private TextView timeView,songTimel,songTimer,text_songName;
 	private SeekBar seekBar;
 	private Button buttonMode,buttonPrevious,buttonContral,buttonNext,buttonVoice;
 	Animation anim;
-	private MyBroadcastReceiver timeChangeReceiver,serviceReceiver;
+	//private MyBroadcastReceiver timeChangeReceiver;
 	private MusicService ms;
 	private String time,songName;
 	private long longtime = 0;
-	int curTime = 0,ttime = 240;
-	boolean isPlaying = false;
+	int curTime = 0,ttime = 0;
+	boolean isPlaying = false,isFirstPlay = true;
 	
 	private final static String TAG = "MusicActivity";
 
-	class MyBroadcastReceiver extends BroadcastReceiver {
+	private BroadcastReceiver timeChangeReceiver = new BroadcastReceiver() {
 		@Override
-		public void onReceive(Context arg0, Intent intent) {
+		public void onReceive(Context contex, Intent intent) {
 			// TODO Auto-generated method stub
-			Log.d(TAG,intent.getAction());
 			if (Intent.ACTION_TIME_TICK.equals(intent.getAction())) {
 				longtime += 60000;
 				refreshTime();
-		    }else if(intent.getAction().equals(MusicService.MFILTER)) {
-		    	  if (intent.getIntExtra(MusicService.CURTIME,0)!=0) {
-		    		  curTime = intent.getIntExtra(MusicService.CURTIME, 0);
-		    	  }else if(intent.getIntExtra(MusicService.TOTALTIME,0)!=0) {
-		    		  ttime = intent.getIntExtra(MusicService.TOTALTIME, 0);
-		    	  }else if(!(TextUtils.isEmpty(intent.getStringExtra(MusicService.NAME)))) {
-		    		  songName = intent.getStringExtra(MusicService.NAME);
-		    	  }
 		    }
 		}
-	}
+	};
+	private BroadcastReceiver serviceReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context contex, Intent intent) {
+			if(intent.getAction().equals(MusicService.MFILTER)) {
+				
+		    	  if (intent.getIntExtra(MusicService.CURTIME,0)!=0) {
+		    		  curTime = intent.getIntExtra(MusicService.CURTIME, 0) / 1000;
+		    		  if(isPlaying) {
+		    			  refreshseekBar();
+		    		  }
+		    	  }else if(intent.getIntExtra(MusicService.TOTALTIME,0)!=0) {
+		    		  ttime = intent.getIntExtra(MusicService.TOTALTIME, 0) / 1000;
+		    		  songTimer.setText(timeFormat(ttime));
+		    	  }else if(!(TextUtils.isEmpty(intent.getStringExtra(MusicService.NAME)))) {
+		    		  String str = intent.getStringExtra(MusicService.NAME);
+		    		  songName = str.substring(0, str.indexOf("."));
+		    		  text_songName.setText(songName);
+		    	 }
+			}
+	    }
+	};
 	private ServiceConnection sc = new ServiceConnection() {
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			// TODO Auto-generated method stub
 			ms =null;
+			Log.d(TAG,"bind disconnect");
 		}
 		
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			// TODO Auto-generated method stub
 			ms = ((MBinder)service).getService();
+			Log.d(TAG,"bind connect");
 		}
 	};
 	
 	private static final int MSG_UPDATE_TIME = 11;
-	private Handler handler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			switch(msg.what) {
-			case MSG_UPDATE_TIME:
-				curTime ++;
-				if(curTime >= ttime) {
-					curTime = 0;
-				}
-				refreshseekBar();
-				if(isPlaying) {
-					handler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, 1000);
-				}
-				break;
-			}
-		}
-	};
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -113,24 +107,26 @@ public class MusicActivity extends Activity {
 		setContentView(R.layout.activity_music);
 		init();
 		registerReceiver(timeChangeReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
-		//registerReceiver(serviceReceiver, new IntentFilter(MusicService.MFILTER));
+		registerReceiver(serviceReceiver, new IntentFilter(MusicService.MFILTER));
 		
 		 
 	}
 	@Override
 	public void onDestroy() {
-	   unregisterReceiver(timeChangeReceiver);
-	 //  unregisterReceiver(serviceReceiver);
-	   //unbindService(sc);
+		Log.d(TAG,"onDestroy");
+		unregisterReceiver(timeChangeReceiver);
+		unregisterReceiver(serviceReceiver);
+		unbindService(sc);
+		super.onDestroy();
 	}
 	
 	private void init() {
 		imageView1 = (ImageView)findViewById(R.id.image_music_rotate);
 		timeView = (TextView)findViewById(R.id.text_music_time);
 		seekBar = (SeekBar)findViewById(R.id.seekbar_music);
-		songTimel = (TextView)findViewById(R.id.text_music_rtime);
-		songTimer = (TextView)findViewById(R.id.text_music_ttime);
-		
+		songTimel = (TextView)findViewById(R.id.text_music_time_l);
+		songTimer = (TextView)findViewById(R.id.text_music_time_r);
+		text_songName = (TextView)findViewById(R.id.textView_music_songname);
 		buttonMode = (Button)findViewById(R.id.button_music_mode); 
 		buttonPrevious = (Button)findViewById(R.id.button_music_previous); 
 		buttonContral = (Button)findViewById(R.id.button_music_contral); 
@@ -152,16 +148,19 @@ public class MusicActivity extends Activity {
 		
 		
 		longtime = System.currentTimeMillis();
-		
+		songTimer.setText(timeFormat(ttime));
 		refreshTime();
 		refreshseekBar();
+		Log.d(TAG,"init time_r : " + ttime);
+		songTimer.setText(timeFormat(ttime));
 		anim = new RotateAnimation(1, 360 , Animation.RELATIVE_TO_SELF, 0.5f,  
                 Animation.RELATIVE_TO_SELF, 0.5f);  
         LinearInterpolator lir = new LinearInterpolator();  
         anim.setInterpolator(lir);  
         anim.setDuration(18000);
         anim.setRepeatCount(-1);
-		
+        Intent bindIntent = new Intent(this,MusicService.class);
+		bindService(bindIntent, sc, BIND_AUTO_CREATE);
 		/*new Thread(new Runnable() {
 			
 			@Override
@@ -192,16 +191,14 @@ public class MusicActivity extends Activity {
 		timeView.setText(time);
 	}
 	public void refreshseekBar() {
-		int progress = (int) ((curTime * 1.0 / ttime) * 100);
-		Log.d(TAG,"refreshSeekbar");
+		int progress = (int) ((curTime * 1.0 / ttime) * 270);
 		seekBar.setProgress(progress);
 		songTimel.setText(timeFormat(curTime));
-		songTimer.setText(timeFormat(ttime));
 	}
 	public String timeFormat(int time) {
 		int min,sec;
-		min = curTime / 60;
-		sec = curTime % 60;
+		min = time / 60;
+		sec = time % 60;
 		String str = new String("");
 		if(min < 10) {
 			str += "0";
@@ -237,26 +234,26 @@ public class MusicActivity extends Activity {
 			case R.id.button_music_contral:
 				isPlaying = !isPlaying;
 				if(isPlaying) {
-					buttonContral.setBackgroundResource(R.drawable.play);
+					buttonContral.setBackgroundResource(R.drawable.c2);
 					imageView1.startAnimation(anim);
-					handler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, 1000);
-					ms.restart();
+					if(isFirstPlay) {
+						ms.startPlay();
+						isFirstPlay = false;
+					}else {
+						ms.restart();
+					}
 				}else {
-					buttonContral.setBackgroundResource(R.drawable.pause);
+					buttonContral.setBackgroundResource(R.drawable.c4);
 					imageView1.clearAnimation();
 					ms.parse();
 				}
 				break;
 			case R.id.button_music_mode:
-				Log.d(TAG,"clieck the mode button start service");
-				startService(new Intent(MusicActivity.this,MusicService.class));
-				//bindService(intent,sc,Context.BIND_AUTO_CREATE);
 				break;
 			case R.id.button_music_previous:
-				Log.d(TAG,"clieck the p button stop service");
-				Intent intent1 = new Intent(MusicActivity.this,MusicService.class);
-				stopService(intent1);
-				
+				isPlaying = true;
+				ms.playPrevious();
+				break;
 				/*new Thread(new Runnable() {
 					public void run() {
 						sendKyeEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_MENU,MainActivity.this);//不能跑在主线程
@@ -264,8 +261,9 @@ public class MusicActivity extends Activity {
 				}).start();
 				//sendKyeEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_MENU,MainActivity.this);
 				text1.setText("send menu");*/
-			default:
-
+			case R.id.button_music_next:
+				isPlaying = true;
+				ms.playNext();
 				break;
 			}
 		}
@@ -328,13 +326,15 @@ public class MusicActivity extends Activity {
 		@Override
 		public void onProgressChanged(SeekBar seekBar, int progress,
 				boolean fromUser) {
-			// TODO Auto-generated method stub
-			Log.d(TAG,"seekbar change : " + progress);
-			curTime = (int)(progress * ttime / 100.0);
-			songTimel.setText(timeFormat(curTime));
-			Log.d(TAG,"curtime :  change" + curTime);
-			Log.d(TAG,"curtime :  change" + ttime);
+			if(fromUser) {
+				Log.d(TAG,"seekbar change : " + progress);
+				curTime = (int)(progress * ttime / 270.0);
+				songTimel.setText(timeFormat(curTime));
+/*				Log.d(TAG,"curtime :  change" + curTime);
+				Log.d(TAG,"curtime :  change" + ttime);*/
+			}
 		}
+			
 
 		@Override
 		public void onStartTrackingTouch(SeekBar seekBar) {

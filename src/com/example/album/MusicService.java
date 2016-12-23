@@ -13,7 +13,9 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Binder;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 
 public class MusicService extends Service{
@@ -26,6 +28,8 @@ public class MusicService extends Service{
 	 public static final String TOTALTIME = "totaltime";
 	 public static final String CURTIME = "curtime";
 	 public static final String TAG = "MusicService";
+	 protected static final int MSG_UPDATE_TIME = 11;
+	// Timer timer;
 	 
 	 @Override
 	 public IBinder onBind(Intent intent) {//1
@@ -49,28 +53,33 @@ public class MusicService extends Service{
 		 super.onCreate();
 		 musicList = new ArrayList<File>();
 		 
-		 File rootDir = getDir("/storage/external_storage/sda1", MODE_PRIVATE);//3
+		 //File rootDir = Environment.getExternalStorageDirectory();//3
+		 File rootDir = new File("/storage/external_storage/sda1");
 		 Log.d(TAG,"service ocreate()");
-		 Log.d("TAG",rootDir.getName());
-		 Log.d("TAG",rootDir.getAbsolutePath());
+		 Log.d(TAG,rootDir.getName());
+		 Log.d(TAG,rootDir.getAbsolutePath());
+		 Log.d(TAG,Environment.getExternalStorageState());
 		 fillMusicList(rootDir);
 		 Log.d(TAG,String.valueOf(musicList.size()));
 		 player = new MediaPlayer();
 		 player.setOnCompletionListener(completionListener);
-		 if (musicList.size() != 0) {
+		 /*if (musicList.size() != 0) {
 			 	startPlay();
-		 }
+		 }*/
 	 }
 	 
 	 @Override
 	 public void onDestroy()
 	 {
+		 player.stop();
+		 player.release();
 		 super.onDestroy();
 		 Log.d(TAG,"service destroy");
 	 }
 	 /*迭代获取 音乐 文件*/
 	 private void fillMusicList(File dir){
 		 File[] sourceFiles = dir.listFiles();
+		 if(sourceFiles == null) return ;
 		 Log.d("长度",String.valueOf(sourceFiles.length));
 		 for(File file : sourceFiles){
 			 if (file.isDirectory()) {
@@ -86,22 +95,41 @@ public class MusicService extends Service{
 			 }
 		 }
 	 }
-	 private void startPlay(){
+	 
+	 private Handler handler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				switch(msg.what) {
+				case MSG_UPDATE_TIME:
+					if(player != null) {
+						mSendBroadCast(CURTIME,player.getCurrentPosition());
+						handler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, 1000);
+					}
+					break;
+				}
+			}
+		};
+	 public void startPlay(){
 		 mSendBroadCast(NAME,musicList.get(curPage).getName());//4
+		 if(musicList.size() <= 0) return;
 		 try {
 			   player.setDataSource(musicList.get(curPage).getAbsolutePath());
 			   player.prepare();
 			   player.start();
 			   player.getDuration();
 			   mSendBroadCast(TOTALTIME,player.getDuration());
-			   Timer timer = new Timer();
+			   Log.d(TAG,"duration : " + player.getDuration());
+			   handler.sendEmptyMessage(MSG_UPDATE_TIME);
+			   //Timer timer = new Timer();
+			   /*timer = new Timer();
 			   timer.schedule(new TimerTask() {
 				   @Override
 				   public void run() {
 					   mSendBroadCast(CURTIME,player.getCurrentPosition());
+					   //Log.d(TAG,"timer schedule run and send broadcast every second");
 				   }
 			   
-			   },0,1000);
+			   },0,1000);*/
 		 }catch(IllegalArgumentException e) {
 			 e.printStackTrace();
 		 } catch (SecurityException e) {
@@ -122,16 +150,19 @@ public class MusicService extends Service{
 	 public void playNext(){
 		 curPage = curPage==musicList.size()-1? (curPage+1)%musicList.size() : curPage+1; 
 		 Log.d("curpage",String.valueOf(curPage));
+		 //timer.cancel();
 		 player.reset();
 		 startPlay();
 	 }
 	 public void playPrevious(){
 		 curPage = curPage==0? 0 : curPage-1; 
 		 Log.d(TAG,String.valueOf(curPage));
+		 //timer.cancel();
 		 player.reset();
 		  startPlay();
 	 }
 	 public void parse(){
+		 
 		 player.pause();
 	 }
 	 public void restart(){
@@ -154,7 +185,9 @@ public class MusicService extends Service{
 	   		public void onCompletion(MediaPlayer mp) {
 		  		player.reset();
 		  		curPage = curPage==musicList.size()-1? (curPage+1)%musicList.size() : curPage+1; 
+		  		//timer.cancel();
 		  		startPlay();
+		  		Log.d(TAG,"completion Listene");
 		  	}
 	  };
 }
