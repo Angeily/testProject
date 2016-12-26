@@ -57,6 +57,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="20dp"
         android:layout_marginEnd="20dp"
-        android:background="@drawable/button_menu" />
+        android:background="@drawable/menus" />
 
 </RelativeLayout>

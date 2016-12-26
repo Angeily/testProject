@@ -58,7 +58,7 @@ public class MusicActivity extends Activity {
 	private final static int MODE_CIRCLE =R.drawable.mcs;
 	private final static int MODE_RANDOM = R.drawable.mrs;
 	private static int mode[] = {MODE_CIRCLE,MODE_ONE,MODE_RANDOM};
-	private static int curMode = 0;
+	private static int curMode = 0,curAngel = 0;
 	private boolean isPlaying = false,isFirstPlay = true,hasLyric = false,isChanging = false;
 	
 	private final static String TAG = "MusicActivity";
@@ -169,14 +169,14 @@ public class MusicActivity extends Activity {
 		longtime = System.currentTimeMillis();
 		songTimer.setText(timeFormat(ttime));
 		refreshTime();
-		refreshseekBar();
+		//refreshseekBar();
 		Log.d(TAG,"init time_r : " + ttime);
 		songTimer.setText(timeFormat(ttime));
 		anim = new RotateAnimation(1, 360 , Animation.RELATIVE_TO_SELF, 0.5f,  
-                Animation.RELATIVE_TO_SELF, 0.5f);  
-        LinearInterpolator lir = new LinearInterpolator();  
-        anim.setInterpolator(lir);  
-        anim.setDuration(18000);
+                Animation.RELATIVE_TO_SELF, 0.5f); 
+        //LinearInterpolator lir = new LinearInterpolator();  
+        //anim.setInterpolator(lir);  
+        anim.setDuration(20000);
         anim.setRepeatCount(-1);
         Intent bindIntent = new Intent(this,MusicService.class);
 		bindService(bindIntent, sc, BIND_AUTO_CREATE);
@@ -275,7 +275,7 @@ public class MusicActivity extends Activity {
 			case R.id.button_music_contral:
 				isPlaying = !isPlaying;
 				if(isPlaying) {
-					buttonContral.setBackgroundResource(R.drawable.c2);
+					buttonContral.setBackgroundResource(R.drawable.plays);
 					imageView1.startAnimation(anim);
 					if(isFirstPlay) {
 						ms.startPlay();
@@ -284,7 +284,7 @@ public class MusicActivity extends Activity {
 						ms.restart();
 					}
 				}else {
-					buttonContral.setBackgroundResource(R.drawable.c4);
+					buttonContral.setBackgroundResource(R.drawable.stops);
 					imageView1.clearAnimation();
 					ms.parse();
 				}
@@ -296,6 +296,8 @@ public class MusicActivity extends Activity {
 				break;
 			case R.id.button_music_previous:
 				isPlaying = true;
+				buttonContral.setBackgroundResource(R.drawable.plays);
+				imageView1.startAnimation(anim);
 				ms.playPrevious();
 				break;
 				/*new Thread(new Runnable() {
@@ -307,6 +309,8 @@ public class MusicActivity extends Activity {
 				text1.setText("send menu");*/
 			case R.id.button_music_next:
 				isPlaying = true;
+				buttonContral.setBackgroundResource(R.drawable.plays);
+				imageView1.startAnimation(anim);
 				ms.playNext();
 				break;
 			}
@@ -320,7 +324,7 @@ public class MusicActivity extends Activity {
 			// TODO Auto-generated method stub
 			switch (v.getId()) {
 			case R.id.button_music_contral:
-				if (hasFocus) {
+				/*if (hasFocus) {
 					if(isPlaying) {
 						buttonContral.setBackgroundResource(R.drawable.c1);
 					}else {
@@ -333,7 +337,11 @@ public class MusicActivity extends Activity {
 						buttonContral.setBackgroundResource(R.drawable.c4);
 					}
 				}
-				break;
+				break;*/
+			case R.id.seekbar_music:
+				if(!hasFocus) {
+					//isChanging = false;
+				}
 		
 			default:
 				break;
@@ -347,7 +355,7 @@ public class MusicActivity extends Activity {
 		public boolean onTouch(View v, MotionEvent event) {
 			switch (v.getId()) {
 			case R.id.button_music_contral:
-				if(event.getAction()==MotionEvent.ACTION_DOWN){
+				/*if(event.getAction()==MotionEvent.ACTION_DOWN){
 					if(isPlaying) {
 						buttonContral.setBackgroundResource(R.drawable.c1);
 					}else {
@@ -360,7 +368,7 @@ public class MusicActivity extends Activity {
 						buttonContral.setBackgroundResource(R.drawable.c4);
 					} 
 	            }  
-				break;
+				break;*/
 			}
 			return true;
 		}
@@ -370,13 +378,15 @@ public class MusicActivity extends Activity {
 		@Override
 		public void onProgressChanged(SeekBar seekBar, int progress,
 				boolean fromUser) {
-			if(fromUser) {
+			if(fromUser && isPlaying) {
 				isChanging = true;
 				Log.d(TAG,"seekbar change : " + progress);
 				curTime = (int)(progress * ttime / 270.0);
+				ms.setPosition(curTime * 1000);
 				songTimel.setText(timeFormat(curTime));
 /*				Log.d(TAG,"curtime :  change" + curTime);
 				Log.d(TAG,"curtime :  change" + ttime);*/
+				isChanging = false;
 			}
 		}
 			
@@ -390,7 +400,7 @@ public class MusicActivity extends Activity {
 		@Override
 		public void onStopTrackingTouch(SeekBar seekBar) {
 			// TODO Auto-generated method stub
-			
+			//isChanging = false;
 		}
 
 	};

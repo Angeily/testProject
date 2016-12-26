@@ -59,7 +59,9 @@ public class MusicService extends Service{
 		 musicList = new ArrayList<File>();
 		 
 		 //final File rootDir = Environment.getExternalStorageDirectory();//3
-		 final File rootDir = new File("/storage/emulated/0/kgmusic");
+		 //final File rootDir = new File("/storage/emulated/0/kgmusic");
+		 //final File rootDir = new File("/storage/external_storage/sda1");
+		 final File rootDir = new File("/sdcard");
 		 Log.d(TAG,"service ocreate()");
 		 Log.d(TAG,rootDir.getName());
 		 Log.d(TAG,rootDir.getAbsolutePath());
@@ -163,7 +165,7 @@ public class MusicService extends Service{
 	 }
 	 
 	 public void setPosition(int msec) {
-		 player.seekTo(msec)
+		 player.seekTo(msec);
 	 }
 	 public void songShad() {
 		 
@@ -176,6 +178,7 @@ public class MusicService extends Service{
 			 curSong = (curSong + 1) % musicList.size();
 		 }
 		 player.reset();
+		 handler.removeMessages(MSG_UPDATE_TIME);
 		 startPlay();
 		 Log.d(TAG,"curSong : " + curSong);
 	 }
@@ -190,11 +193,12 @@ public class MusicService extends Service{
 			 }
 		 }
 		 player.reset();
+		 handler.removeMessages(MSG_UPDATE_TIME);
 		 startPlay();
 		 Log.d(TAG,"curSong : " + curSong);
 	 }
 	 public void parse(){
-		 
+		 //handler.removeMessages(MSG_UPDATE_TIME);
 		 player.pause();
 	 }
 	 public void restart(){
@@ -226,6 +230,7 @@ public class MusicService extends Service{
 		  			curSong = (curSong + 1) % musicList.size();
 		  		}
 		  		player.reset();
+		  		handler.removeMessages(MSG_UPDATE_TIME);
 		  		startPlay();
 		  		Log.d(TAG,"curSong : " + curSong);
 		  	}
