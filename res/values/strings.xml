@@ -15,34 +15,8 @@
 	<string name="menu_clean_text">clean Memorry</string>
 	<string name="label_music">Music</string>
 	<string name="text_music_time">time</string>
-	<string name="text_music_songname">如果这都不算爱</string>
-	<string name="text_music_singer">张学友</string>
-	<string name="text_lyrics"> 是否爱就得忍耐不问该不该\n
-都怪我没能耐转身走开\n
-难道牺牲才精彩伤痛才实在\n
-要为你流下泪来才证明是爱\n
-如果这都不算爱\n
-我有什么好悲哀\n
-谢谢你的慷慨\n
-是我自己活该\n
-如果这都不算爱\n
-我有什么好悲哀\n
-你只要被期待\n
-不要真正去爱 oh no\n
-还要怎样的表白才不算独白\n
-都怪我没能耐转身走开\n
-难道牺牲才精彩伤痛才实在\n
-要为你流下泪来才证明是爱\n
-你的感情太易割爱\n
-把未来转眼就删改\n
-我的心却为你空白了一块\n
-如果这都不算爱\n
-我有什么好悲哀\n
-谢谢你的慷慨\n
-是我自己活该 oh no\n
-如果这都不算爱\n
-我有什么好悲哀\n
-你要的是崇拜\n
-并不是谁的爱 oh no\n</string>
+	<string name="text_music_songname"></string>
+	<string name="text_music_singer"></string>
+	<string name="text_lyrics">没有找到歌词</string>
 	
 </resources>

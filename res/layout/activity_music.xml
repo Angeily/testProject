@@ -13,74 +13,80 @@
         android:layout_height="match_parent"
         android:layout_weight="3"
         android:orientation="vertical"
-        android:padding="15dp"
         >
 
         <LinearLayout
             android:id="@+id/layout_music_l_1"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="6"
-            android:orientation="vertical" >
-
-        	 <ImageView
-        	     android:id="@+id/image_music_rotate"
-        	     android:layout_width="wrap_content"
-        	     android:layout_height="wrap_content"
-        	     android:layout_gravity="center"
-        	     android:layout_marginLeft="0dp"
-        	     android:layout_marginRight="50dp"
-        	     android:layout_marginTop="40dp"
-        	     android:layout_marginBottom="20dp"
-        	     android:src="@drawable/circle" >
-
-       		 </ImageView> 
+            android:layout_weight="4"
+            android:orientation="horizontal" >
+            <LinearLayout
+            android:id="@+id/layout_music_l_1_1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:orientation="horizontal" >
+        		 <ImageView
+	        	     android:id="@+id/image_music_rotate"
+	        	     android:layout_width="match_parent"
+	        	     android:layout_height="match_parent"
+	        	     android:layout_gravity="center"
+	        	     android:layout_margin="10dp"
+	        	     android:src="@drawable/circle" >
+       			 </ImageView> 
+       		 </LinearLayout>
+       		 <LinearLayout
+            android:id="@+id/layout_music_l_1_2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="bottom" >
+       		 	<com.example.album.VerticalSeekBar 
+	       		     android:id="@+id/seekbar_music_voice"
+	       		     android:layout_width="wrap_content"
+	       		     android:layout_height="wrap_content"
+	       		     />
+       		 </LinearLayout>
     	</LinearLayout>
-
         <LinearLayout
             android:id="@+id/layout_music_l_2"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="horizontal" 
-            android:layout_gravity="center">
-
+            android:gravity="center">
          <Button
              android:id="@+id/button_music_mode"
              android:layout_width="40dp"
              android:layout_height="40dp"
-             android:layout_marginBottom="25dp"
-             android:layout_marginLeft="90dp"
-             android:layout_marginRight="25dp"
-             android:layout_marginTop="25dp"
-             android:background="@drawable/ms" />
-
+             android:layout_margin="15dp"
+             android:background="@drawable/mcs" />
          <Button
              android:id="@+id/button_music_previous"
              android:layout_width="40dp"
              android:layout_height="40dp"
-             android:layout_margin="25dp"
+             android:layout_margin="15dp"
              android:background="@drawable/ps" />
-
          <Button
              android:id="@+id/button_music_contral"
              android:layout_width="40dp"
              android:layout_height="40dp"
-             android:layout_margin="25dp"
+             android:layout_margin="15dp"
              android:background="@drawable/c4" />
-
          <Button
              android:id="@+id/button_music_next"
              android:layout_width="40dp"
              android:layout_height="40dp"
-             android:layout_margin="25dp"
+             android:layout_margin="15dp"
              android:background="@drawable/ns" 
              />
          <Button
              android:id="@+id/button_music_voice"
              android:layout_width="40dp"
              android:layout_height="40dp"
-             android:layout_margin="25dp"
+             android:layout_margin="15dp"
              android:background="@drawable/vs" 
              />
         </LinearLayout>
@@ -90,31 +96,32 @@
    	 	    android:layout_height="0dp"
    	 	    android:layout_weight="1"
    	 	    android:orientation="horizontal"
-   	 	    android:layout_gravity="center"
+   	 	    android:gravity="top"
+   	 	    android:paddingLeft="20dp"
+   	 	    android:paddingRight="20dp"
+   	 	    android:paddingTop="5dp"
    	 	    >
          <TextView
              android:id="@+id/text_music_time_l"
-             android:layout_width="wrap_content"
+             android:layout_width="0dp"
              android:layout_height="wrap_content"
-             android:layout_gravity="center"
-             android:layout_marginLeft="80dp"
+             android:layout_weight="1"
              android:textSize="18sp" />
          <SeekBar 
              android:id="@+id/seekbar_music"
-             android:layout_width="300dp"
              android:layout_height="wrap_content"
-             android:layout_marginLeft="10dp"
-             android:layout_marginRight="10dp"
-             style="?android:attr/seekBarStyle"
-             android:layout_gravity="center"
+             android:layout_width="0dp"
+             android:layout_weight="4"
+             android:layout_marginEnd="10dp"
+             style="@style/Widget.SeekBar.Normal"
              android:max="270"
              android:progress="0"/>
          <TextView 
              android:id="@+id/text_music_time_r"
-             android:layout_width="wrap_content"
+             android:layout_width="0dp"
              android:layout_height="wrap_content"
+             android:layout_weight="1"
              android:textSize="18sp"
-             android:layout_gravity="center"
              />
     	</LinearLayout>
     
@@ -125,9 +132,7 @@
         android:layout_height="match_parent"
         android:layout_weight="2"
         android:orientation="vertical"
-        android:padding="15dp"
        >
-
    	 	<LinearLayout
    	 	    android:id="@+id/layout_music_r_0"
    	 	    android:layout_width="match_parent"
@@ -140,10 +145,10 @@
         	    android:layout_width="match_parent"
         	    android:layout_height="match_parent"
         	    android:gravity="end"
-        	    android:layout_marginEnd="20dp"
+        	    android:layout_margin="8dp"
         	    android:text="@string/text_music_time"
         	    android:textColor="@drawable/black"
-        	    android:textSize="18sp" />
+        	    android:textSize="15sp" />
 
         </LinearLayout>
         
@@ -158,7 +163,7 @@
              android:id="@+id/textView_music_songname"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
-             android:layout_marginTop="20dp"
+             android:lines="1"
              android:text="@string/text_music_songname"
              android:textColor="@color/white"
              android:textSize="25sp" 
@@ -168,7 +173,12 @@
              android:id="@+id/textView_music_singer"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
-             android:layout_marginTop="10dp"
+             android:lines="1"
+             android:scrollbars="horizontal"
+             android:ellipsize="marquee"
+        	 android:focusable="true"
+     	     android:focusableInTouchMode="true"
+             android:layout_marginTop="5dp"
              android:text="@string/text_music_singer"
              android:textColor="@color/white"
              android:textSize="20sp" 
@@ -181,13 +191,11 @@
     	    android:layout_height="0dp"
     	    android:layout_weight="5"
     	    android:orientation="horizontal" 
-    	    android:layout_marginTop="-20dp"
     	    >
          <TextView
              android:id="@+id/text_music_lyric"
-             android:layout_width="0dp"
              android:layout_height="match_parent"
-             android:layout_weight="5"
+             android:layout_width="match_parent"
              android:lineSpacingExtra="8dp"
              android:text="@string/text_lyrics"
              android:textColor="@drawable/white"
@@ -199,7 +207,7 @@
             android:id="@+id/layout_music_r_3"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:orientation="horizontal" >
     	</LinearLayout>
     </LinearLayout>

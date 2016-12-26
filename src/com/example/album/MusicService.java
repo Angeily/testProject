@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.RandomAccess;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,13 +24,17 @@ public class MusicService extends Service{
 	 
 	 private List<File> musicList;
 	 private MediaPlayer player;
-	 private int curPage;
+	 private int curSong;
 	 public static final String MFILTER = "broadcast.intent.action.text";
 	 public static final String NAME = "name";
 	 public static final String TOTALTIME = "totaltime";
 	 public static final String CURTIME = "curtime";
 	 public static final String TAG = "MusicService";
 	 protected static final int MSG_UPDATE_TIME = 11;
+	 private static int mode = 0;
+	 private final static int MODE_CIRCLE =0;
+	 private final static int MODE_ONE = 1;
+	 private final static int MODE_RANDOM = 2;
 	// Timer timer;
 	 
 	 @Override
@@ -40,8 +46,7 @@ public class MusicService extends Service{
 	 public class MBinder extends Binder{//2
 		 public MusicService getService(){
 			 return MusicService.this;
-		 } 
-	  
+		 }
 		 public MediaPlayer getPlayer(){
 		  return player;
 		 }
@@ -53,13 +58,21 @@ public class MusicService extends Service{
 		 super.onCreate();
 		 musicList = new ArrayList<File>();
 		 
-		 //File rootDir = Environment.getExternalStorageDirectory();//3
-		 File rootDir = new File("/storage/external_storage/sda1");
+		 //final File rootDir = Environment.getExternalStorageDirectory();//3
+		 final File rootDir = new File("/storage/emulated/0/kgmusic");
 		 Log.d(TAG,"service ocreate()");
 		 Log.d(TAG,rootDir.getName());
 		 Log.d(TAG,rootDir.getAbsolutePath());
 		 Log.d(TAG,Environment.getExternalStorageState());
-		 fillMusicList(rootDir);
+		 new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				fillMusicList(rootDir);
+			}
+		}).start();
+		 
 		 Log.d(TAG,String.valueOf(musicList.size()));
 		 player = new MediaPlayer();
 		 player.setOnCompletionListener(completionListener);
@@ -72,7 +85,7 @@ public class MusicService extends Service{
 	 public void onDestroy()
 	 {
 		 player.stop();
-		 player.release();
+		 //player.release();
 		 super.onDestroy();
 		 Log.d(TAG,"service destroy");
 	 }
@@ -82,7 +95,7 @@ public class MusicService extends Service{
 		 if(sourceFiles == null) return ;
 		 Log.d("长度",String.valueOf(sourceFiles.length));
 		 for(File file : sourceFiles){
-			 if (file.isDirectory()) {
+			 if (file.isDirectory() /*&& file.getName().contains("download")*/) {
 				 Log.d("文件夹名称",String.valueOf(file.getName()));
 				 fillMusicList(file);
 			 }
@@ -109,11 +122,12 @@ public class MusicService extends Service{
 				}
 			}
 		};
+	
 	 public void startPlay(){
-		 mSendBroadCast(NAME,musicList.get(curPage).getName());//4
+		 mSendBroadCast(NAME,musicList.get(curSong).getName());//4
 		 if(musicList.size() <= 0) return;
 		 try {
-			   player.setDataSource(musicList.get(curPage).getAbsolutePath());
+			   player.setDataSource(musicList.get(curSong).getAbsolutePath());
 			   player.prepare();
 			   player.start();
 			   player.getDuration();
@@ -144,22 +158,40 @@ public class MusicService extends Service{
 		}
 	 }
 		 
+	 public void setMode(int m) {
+		 mode = m;
+	 }
 	 
-	 
+	 public void setPosition(int msec) {
+		 player.seekTo(msec)
+	 }
+	 public void songShad() {
+		 
+	 }
 	 
 	 public void playNext(){
-		 curPage = curPage==musicList.size()-1? (curPage+1)%musicList.size() : curPage+1; 
-		 Log.d("curpage",String.valueOf(curPage));
-		 //timer.cancel();
+		 if(mode == MODE_RANDOM) {
+			 curSong = getRandomSong(); 
+		 }else if(mode == MODE_CIRCLE || mode == MODE_ONE) {
+			 curSong = (curSong + 1) % musicList.size();
+		 }
 		 player.reset();
 		 startPlay();
+		 Log.d(TAG,"curSong : " + curSong);
 	 }
 	 public void playPrevious(){
-		 curPage = curPage==0? 0 : curPage-1; 
-		 Log.d(TAG,String.valueOf(curPage));
-		 //timer.cancel();
+		 if(mode == MODE_RANDOM) {
+			 curSong = getRandomSong(); 
+		 }else if(mode == MODE_CIRCLE || mode == MODE_ONE) {
+			 if(curSong == 0) {
+				 curSong = musicList.size() -1;
+			 }else {
+				 curSong --;
+			 }
+		 }
 		 player.reset();
-		  startPlay();
+		 startPlay();
+		 Log.d(TAG,"curSong : " + curSong);
 	 }
 	 public void parse(){
 		 
@@ -180,14 +212,22 @@ public class MusicService extends Service{
 		 intent.putExtra(key,value);//发送广播
 		 sendBroadcast(intent);
 	 }
+	 private int getRandomSong(){
+		 Random random = new Random();
+		 return random.nextInt(musicList.size());
+	 }
+	 
 	 private OnCompletionListener completionListener = new OnCompletionListener() {
 		  	@Override
 	   		public void onCompletion(MediaPlayer mp) {
+		  		if(mode == MODE_RANDOM) {
+		  			curSong = getRandomSong(); 
+		  		}else if(mode == MODE_CIRCLE) {
+		  			curSong = (curSong + 1) % musicList.size();
+		  		}
 		  		player.reset();
-		  		curPage = curPage==musicList.size()-1? (curPage+1)%musicList.size() : curPage+1; 
-		  		//timer.cancel();
 		  		startPlay();
-		  		Log.d(TAG,"completion Listene");
+		  		Log.d(TAG,"curSong : " + curSong);
 		  	}
 	  };
 }

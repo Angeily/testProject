@@ -4,17 +4,21 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,13 +35,17 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.example.album.MusicService.MBinder;;;
 
 public class MusicActivity extends Activity {
 	
 	
 	private ImageView imageView1;
-	private TextView timeView,songTimel,songTimer,text_songName;
+	private TextView timeView,songTimel,songTimer,text_songName,textMusicLyric;
+	private VerticalSeekBar seekbarVoice;
+	//MyTextView textSinger;
 	private SeekBar seekBar;
 	private Button buttonMode,buttonPrevious,buttonContral,buttonNext,buttonVoice;
 	Animation anim;
@@ -45,8 +53,13 @@ public class MusicActivity extends Activity {
 	private MusicService ms;
 	private String time,songName;
 	private long longtime = 0;
-	int curTime = 0,ttime = 0;
-	boolean isPlaying = false,isFirstPlay = true;
+	private int curTime = 0,ttime = 0;
+	private final static int MODE_ONE = R.drawable.mos;
+	private final static int MODE_CIRCLE =R.drawable.mcs;
+	private final static int MODE_RANDOM = R.drawable.mrs;
+	private static int mode[] = {MODE_CIRCLE,MODE_ONE,MODE_RANDOM};
+	private static int curMode = 0;
+	private boolean isPlaying = false,isFirstPlay = true,hasLyric = false,isChanging = false;
 	
 	private final static String TAG = "MusicActivity";
 
@@ -67,7 +80,7 @@ public class MusicActivity extends Activity {
 				
 		    	  if (intent.getIntExtra(MusicService.CURTIME,0)!=0) {
 		    		  curTime = intent.getIntExtra(MusicService.CURTIME, 0) / 1000;
-		    		  if(isPlaying) {
+		    		  if(isPlaying && !isChanging) {
 		    			  refreshseekBar();
 		    		  }
 		    	  }else if(intent.getIntExtra(MusicService.TOTALTIME,0)!=0) {
@@ -105,6 +118,7 @@ public class MusicActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_music);
+		
 		init();
 		registerReceiver(timeChangeReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
 		registerReceiver(serviceReceiver, new IntentFilter(MusicService.MFILTER));
@@ -124,8 +138,11 @@ public class MusicActivity extends Activity {
 		imageView1 = (ImageView)findViewById(R.id.image_music_rotate);
 		timeView = (TextView)findViewById(R.id.text_music_time);
 		seekBar = (SeekBar)findViewById(R.id.seekbar_music);
+		seekbarVoice = (VerticalSeekBar)findViewById(R.id.seekbar_music_voice);
 		songTimel = (TextView)findViewById(R.id.text_music_time_l);
 		songTimer = (TextView)findViewById(R.id.text_music_time_r);
+		textMusicLyric = (TextView)findViewById(R.id.text_music_lyric);
+		//textSinger = (MyTextView)findViewById(R.id.textView_music_singer);
 		text_songName = (TextView)findViewById(R.id.textView_music_songname);
 		buttonMode = (Button)findViewById(R.id.button_music_mode); 
 		buttonPrevious = (Button)findViewById(R.id.button_music_previous); 
@@ -145,8 +162,10 @@ public class MusicActivity extends Activity {
 		buttonNext.setOnClickListener(listener);
 		buttonVoice.setOnClickListener(listener);
 		seekBar.setOnSeekBarChangeListener(seekBarListener);
-		
-		
+		seekbarVoice.setVisibility(View.GONE);
+		if(!hasLyric) {
+			textMusicLyric.setGravity(Gravity.CENTER);
+		}
 		longtime = System.currentTimeMillis();
 		songTimer.setText(timeFormat(ttime));
 		refreshTime();
@@ -161,6 +180,29 @@ public class MusicActivity extends Activity {
         anim.setRepeatCount(-1);
         Intent bindIntent = new Intent(this,MusicService.class);
 		bindService(bindIntent, sc, BIND_AUTO_CREATE);
+		//ms.setMode(curMode); 为什么这里会出错！！！！！！！！
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);  
+		builder.setTitle("Title")  
+		       .setMessage("Dialog content.")  
+		       .setPositiveButton("OK", new DialogInterface.OnClickListener() {  
+		               @Override  
+		               public void onClick(DialogInterface dialog,   
+		               int which) {  
+		            	   
+		            	   /*Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		                   intent.setType("/*");
+		                   startActivityForResult(intent, 1);*/
+		               }  
+		       })  
+		       .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {  
+		               @Override  
+		               public void onClick(DialogInterface dialog,  
+		                int which) {  
+		               }  
+		        })  
+		       .show();  
+		
+		
 		/*new Thread(new Runnable() {
 			
 			@Override
@@ -179,7 +221,6 @@ public class MusicActivity extends Activity {
 						e.printStackTrace();
 					}  
 				}
-				
 			}
 		});*/
 	}
@@ -249,6 +290,9 @@ public class MusicActivity extends Activity {
 				}
 				break;
 			case R.id.button_music_mode:
+				curMode = (curMode + 1) % 3;
+				buttonMode.setBackgroundResource(mode[curMode]);
+				ms.setMode(curMode);
 				break;
 			case R.id.button_music_previous:
 				isPlaying = true;
@@ -327,6 +371,7 @@ public class MusicActivity extends Activity {
 		public void onProgressChanged(SeekBar seekBar, int progress,
 				boolean fromUser) {
 			if(fromUser) {
+				isChanging = true;
 				Log.d(TAG,"seekbar change : " + progress);
 				curTime = (int)(progress * ttime / 270.0);
 				songTimel.setText(timeFormat(curTime));
@@ -349,5 +394,13 @@ public class MusicActivity extends Activity {
 		}
 
 	};
-
+	
+	/*@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)  {  
+        if (resultCode == Activity.RESULT_OK)  
+        {  
+            Uri uri = data.getData();  
+            Toast.makeText(MusicActivity.this, "make it : " + uri.getEncodedPath(), Toast.LENGTH_SHORT).show();
+        }  
+	} */ 
 }

@@ -16,5 +16,14 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
+    
+    <style name="Widget.SeekBar.Normal" parent="@android:style/Widget.SeekBar">  
+        <item name="android:maxHeight">2.0dip</item>  
+        <item name="android:indeterminateOnly">false</item>  
+        <item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>  
+        <item name="android:progressDrawable">@drawable/myseekbar</item>  
+        <item name="android:minHeight">2.0dip</item>  
+        <item name="android:thumb">@drawable/myseekbar_thumb</item>  
+        <item name="android:thumbOffset">0.0dip</item>  
+    </style>  
 </resources>
